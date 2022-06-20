@@ -1,9 +1,16 @@
+#pragma once
+
+#include <boost/serialization/access.hpp>
+
 // could be optimized
+namespace silbo {
+namespace fingerprint {
+
 struct Hash {
-    float start;
-    float freq_ratio;
-    float time_delta;
-    size_t id;
+    float start = 0;
+    float freq_ratio = 0;
+    float time_delta = 0;
+    size_t id = 0;
 
 private:
     friend class boost::serialization::access;
@@ -15,4 +22,7 @@ private:
         ar & time_delta;
         ar & id;
     }
+};
+
+}
 }

@@ -1,17 +1,16 @@
-#include <GetPot>
+#include <GetPot.hpp>
 
-#include <silbo/silbo.hpp>
-#include <silbo/config.hpp>
+#include "silbo/silbo.hpp"
+#include "silbo/config.hpp"
 
 #include <vector>
 #include <iostream>
 
 int main(int argc, char** argv) {
     GetPot cl(argc, argv);
-    const auto data = cl.nominus_followers("-d")
-    const auto inputs = cl.nominus_followers("-i")
-    const auto save_path = cl.nominus_followers("-s")
-    const auto 
+    const auto data = cl.nominus_followers("-d");
+    const auto inputs = cl.nominus_followers("-i");
+    const auto save_path = cl.nominus_followers("-s");
     
     auto config = silbo::Config{};
     if (!save_path.empty()) {

@@ -1,16 +1,11 @@
 #pragma once
 
-#include <hash.hpp>
+#include <opencv2/core/core.hpp>
+
+#include "hash.hpp"
 
 #include <string>
 #include <vector>
-
-namespace cv {
-
-class Mat;
-class Point;
-
-}
 
 namespace Kdtree {
 
@@ -33,7 +28,7 @@ public:
 
 private:
     std::vector<Hash> hashes_;
-}
+};
 
 }
 }

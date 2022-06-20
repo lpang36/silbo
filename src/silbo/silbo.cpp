@@ -1,18 +1,21 @@
 #include <glob.h>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
+#include <boost/algorithm/string.hpp>
 
-#include <silbo.hpp>
-#include <fft/fft.hpp>
+#include "silbo.hpp"
+#include "fft/fft.hpp"
 
 #include <algorithm>
+#include <fstream>
 
 namespace silbo {
 
-void Silbo::add(const std::string path) {
-    if (path.ends_with(".bin")) {
-        boost::archive::text_iarchive ia(std::ifstream(path));
-        ia >> *db;
+void Silbo::add(const std::string& path) {
+    if (boost::algorithm::ends_with(path, ".bin")) {
+        std::ifstream ifs(path);
+        boost::archive::text_iarchive ia(ifs);
+        ia >> *db_;
     } else {
         glob_t globbuf;
         if (glob(path.c_str(), 0, NULL, &globbuf) == 0) {
@@ -26,12 +29,13 @@ void Silbo::add(const std::string path) {
 
 void Silbo::save() const {
     if (!config_.save_path.empty()) {
-        boost::archive::text_oarchive oa(std::ofstream(config_.save_path));
-        oa << *db;
+        std::ofstream ofs(config_.save_path);
+        boost::archive::text_oarchive oa(ofs);
+        oa << *db_;
     }
 }
 
-std::vector<Match> Silbo::lookup(const std::string path) const {
+std::vector<db::Match> Silbo::lookup(const std::string& path) const {
     auto results = db_->lookup(process_file(path));
     std::for_each(results.begin(), results.end(), [&](auto& match) {
         match.name = paths.at(match.id - 1);
@@ -39,7 +43,7 @@ std::vector<Match> Silbo::lookup(const std::string path) const {
     return results;
 }
 
-std::unique_ptr<fingerprint::Fingerprint> Silbo::process_file(const std::string& path) const {
+fingerprint::Fingerprint Silbo::process_file(const std::string& path) const {
     if (ids_.find(path) == ids_.end()) {
         ids_[path] = ++next_id_;
         paths.emplace_back(path);
