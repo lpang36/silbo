@@ -1,8 +1,12 @@
 #include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui.hpp>
 #include <kdtree.hpp>
 
 #include "../config.hpp"
+#include "../utils.hpp"
 #include "fingerprint.hpp"
+
+#include <iostream>
 
 namespace silbo {
 namespace fingerprint {
@@ -26,9 +30,15 @@ Fingerprint Fingerprint::fingerprint(cv::Mat input, const Config& config, size_t
     mask.at<float>(config.mask_width / 2, config.mask_height / 2) = 0;
     cv::Mat constellation;
     cv::dilate(input, constellation, mask);
-    constellation = input > constellation;
+    constellation = input >= constellation;
+    display_spectrogram(constellation);
     cv::Mat points;
     cv::findNonZero(constellation, points);
+
+    Fingerprint f;
+    if (points.size().width == 0) {
+        return f;
+    }
 
     // assumes same sampling rate - must fix
     Kdtree::KdNodeVector nodes;
@@ -39,7 +49,6 @@ Fingerprint Fingerprint::fingerprint(cv::Mat input, const Config& config, size_t
     auto tree = Kdtree::KdTree{&nodes};
 
     // would need a transform to use a rectangular window
-    Fingerprint f;
     for (size_t i = 0; i < points.total(); ++i) {
         const auto& point = points.at<cv::Point>(i);
         auto anchor = std::vector<double>{double(point.x + config.window_shift), double(point.y)};

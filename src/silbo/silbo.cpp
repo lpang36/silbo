@@ -44,11 +44,10 @@ std::vector<db::Match> Silbo::lookup(const std::string& path) const {
 }
 
 fingerprint::Fingerprint Silbo::process_file(const std::string& path) const {
-    if (ids_.find(path) == ids_.end()) {
-        ids_[path] = ++next_id_;
-        paths.emplace_back(path);
-        return fingerprint::Fingerprint::fingerprint(fft::FFT::fft(path, config_), config_, next_id_);
-    }
+    // assumes no duplicate paths
+    ids_[path] = ++next_id_;
+    paths.emplace_back(path);
+    return fingerprint::Fingerprint::fingerprint(fft::FFT::fft(path, config_), config_, next_id_);
 }
 
 }

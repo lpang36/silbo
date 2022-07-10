@@ -1,6 +1,7 @@
 .d
 .o
 .vscode
-silbo
+./silbo
 data
 build
+test
