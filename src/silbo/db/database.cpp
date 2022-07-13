@@ -41,6 +41,11 @@ std::vector<Match> Database::lookup(const fingerprint::Fingerprint& f) {
             }
         });
 
+        for (const auto& [bucket, count] : histogram) {
+            std::cout << bucket << " " << count << std::endl;
+        }
+        std::cout << std::endl;
+
         score /= hashes.size();
         if (score > config_.threshold) {
             output.emplace_back(Match{id, score, ""});

@@ -58,6 +58,7 @@ Fingerprint Fingerprint::fingerprint(cv::Mat input, const Config& config, size_t
             f.add(point, p, id);
         }
     }
+    std::cout << f.hashes().size() << std::endl;
     return f;
 }
 

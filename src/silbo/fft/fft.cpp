@@ -5,6 +5,8 @@
 #include "../utils.hpp"
 #include "fft.hpp"
 
+#include <math.h>
+
 namespace silbo {
 namespace fft {
 
@@ -13,7 +15,7 @@ cv::Mat FFT::fft(const std::string& path, const Config& config) {
     file.load(path);
 
     const size_t n = file.getNumSamplesPerChannel();
-    const size_t cols = config.block_size;
+    const size_t cols = config.block_size * 2;
     const size_t rows = n / cols + (n % cols > 0);
     auto samples = cv::Mat{rows, cols, CV_32F};
     for (size_t i = 0; i < n; ++i) {
@@ -22,7 +24,11 @@ cv::Mat FFT::fft(const std::string& path, const Config& config) {
         samples.at<float>(i / cols, i % cols) = file.samples[0][i];
     }
 
-    // omitting hanning window for now
+    /*auto window = cv::Mat{1, cols, CV_32F};
+    for (size_t i = 0; i < cols; ++i) {
+        window.at<float>(0, i) = 0.5 * (1 - std::cos(2 * M_PI * i / (cols)));
+    }*/
+
   	// http://docs.opencv.org/doc/tutorials/core/discrete_fourier_transform/discrete_fourier_transform.html
     for (size_t i = 0; i < rows; ++i) {
         // could be more efficient without repeated allocation
@@ -38,6 +44,8 @@ cv::Mat FFT::fft(const std::string& path, const Config& config) {
         cv::log(planes[0], planes[0]);
         row = planes[0];
     }
+
+    samples = samples(cv::Rect{config.min_freq, 0, config.max_freq - config.min_freq, samples.size().height}).t();
     display_spectrogram(samples);
     return samples;
 }
