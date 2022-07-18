@@ -7,9 +7,9 @@
 namespace silbo {
 namespace db {
 
-void Database::add(const std::string& path, const fingerprint::Fingerprint& f) {
+void Database::add(const Audio& audio, const fingerprint::Fingerprint& f) {
     // assumes no duplicate paths
-    paths_.emplace_back(path);
+    paths_.emplace_back(audio);
     
     auto h = f.hashes();
     hashes_.insert(hashes_.end(), h.begin(), h.end());
@@ -34,19 +34,33 @@ std::vector<Match> Database::lookup(const fingerprint::Fingerprint& f) {
     for (const auto& [id, offsets] : matches) {
         std::unordered_map<float, size_t> histogram;
         float score = 1;
+        int best_bucket = -1;
         std::for_each(offsets.cbegin(), offsets.cend(), [&](float o) {
             auto bucket = int(o) / config_.bucket_size;
             auto it = histogram.find(bucket);
             if (it == histogram.end()) {
                 histogram[bucket] = 1;
             } else {
-                score = std::max(score, float(++it->second));
+                float count = ++it->second;
+                if (score < count) {
+                    score = count;
+                    best_bucket = bucket;
+                }
             }
         });
 
+        const auto& audio = paths_.at(id - 1);
+        /*std::cout << audio.name << " " << best_bucket << " " << audio.sample_rate << std::endl;
+        for (const auto& [bucket, count]: histogram) {
+            std::cout << bucket << " " << count << std::endl;
+        }*/
         score /= hashes.size();
         if (score > config_.score_threshold) {
-            output.emplace_back(Match{id, score, paths_.at(id - 1)});
+            output.emplace_back(Match{
+                audio, 
+                score, 
+                2 * best_bucket * config_.block_size * config_.bucket_size / config_.default_sample_rate, // TODO: adjust if overlap used in fft
+            });
         }
     }
 

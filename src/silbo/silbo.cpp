@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <fstream>
+#include <cassert>
 
 namespace silbo {
 
@@ -20,7 +21,8 @@ void Silbo::add(const std::string& path) {
         glob_t globbuf;
         if (glob(path.c_str(), 0, NULL, &globbuf) == 0) {
             for (size_t i = 0; i < globbuf.gl_pathc; ++i) {
-                db_->add(path, process_file(globbuf.gl_pathv[i]));
+                const auto& [audio, fingerprint] = process_file(globbuf.gl_pathv[i]);
+                db_->add(audio, fingerprint);
             }
             globfree(&globbuf);
         }
@@ -36,11 +38,20 @@ void Silbo::save() const {
 }
 
 std::vector<db::Match> Silbo::lookup(const std::string& path) const {
-    return db_->lookup(process_file(path));
+    return db_->lookup(process_file(path).second);
 }
 
-fingerprint::Fingerprint Silbo::process_file(const std::string& path) const {
-    return fingerprint::Fingerprint::fingerprint(fft::FFT::fft(path, config_), config_, db_->get_next_id());
+std::pair<Audio, fingerprint::Fingerprint> Silbo::process_file(const std::string& path) const {
+    AudioFile<double> file;
+    file.load(path);
+    auto id = db_->get_next_id();
+
+    return std::make_pair<Audio, fingerprint::Fingerprint>({
+        id, 
+        path, 
+        file.getSampleRate(),
+        file.getNumSamplesPerChannel()
+    }, fingerprint::Fingerprint::fingerprint(fft::FFT::fft(file, config_), config_, id));
 }
 
 }

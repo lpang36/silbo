@@ -7,6 +7,7 @@
 #include "../fingerprint/fingerprint.hpp"
 #include "match.hpp"
 #include "../config.hpp"
+#include "../audio.hpp"
 
 #include <memory>
 
@@ -17,7 +18,7 @@ class Database {
 public:
     explicit Database(const Config& config) : config_(config) {};
 
-    void add(const std::string& name, const fingerprint::Fingerprint& f);
+    void add(const Audio& name, const fingerprint::Fingerprint& f);
     std::vector<Match> lookup(const fingerprint::Fingerprint& f);
     size_t get_next_id() const;
 
@@ -37,7 +38,7 @@ private:
     std::vector<fingerprint::Hash> hashes_;
     std::unique_ptr<Kdtree::KdTree> tree_;
     bool initialized_ = false;
-    std::vector<std::string> paths_;
+    std::vector<Audio> paths_;
 };
 
 }

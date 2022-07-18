@@ -20,7 +20,7 @@ public:
     std::vector<db::Match> lookup(const std::string& path) const;    
 
 private:
-    fingerprint::Fingerprint process_file(const std::string& path) const;
+    std::pair<Audio, fingerprint::Fingerprint> process_file(const std::string& path) const;
 
     const Config config_;
     const std::unique_ptr<db::Database> db_;

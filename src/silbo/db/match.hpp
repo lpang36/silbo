@@ -1,17 +1,19 @@
 #pragma once
 
+#include "../audio.hpp"
+
 #include <iostream>
 
 namespace silbo {
 namespace db {
 
 struct Match {
-    size_t id = 0;
+    Audio audio;
     float score = 0;
-    std::string name;
+    int timestamp = 0;
 
     friend std::ostream& operator<<(std::ostream& os, const Match& m) {
-        os << m.name << " " << m.score;
+        os << m.audio.name << ": " << m.score << " at " << m.timestamp << "s";
         return os;
     }
 };

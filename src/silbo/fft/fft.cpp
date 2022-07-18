@@ -1,5 +1,4 @@
 #include <opencv2/imgproc/imgproc.hpp>
-#include "AudioFile.h"
 
 #include "../config.hpp"
 #include "../utils.hpp"
@@ -10,10 +9,7 @@
 namespace silbo {
 namespace fft {
 
-cv::Mat FFT::fft(const std::string& path, const Config& config) {
-    AudioFile<double> file;
-    file.load(path);
-
+cv::Mat FFT::fft(const AudioFile<double>& file, const Config& config) {
     const size_t n = file.getNumSamplesPerChannel();
     const size_t cols = config.block_size * 2;
     const size_t rows = n / cols + (n % cols > 0);
@@ -48,6 +44,7 @@ cv::Mat FFT::fft(const std::string& path, const Config& config) {
 
     samples = samples(cv::Rect{config.min_freq, 0, config.max_freq - config.min_freq, samples.size().height}).t();
     cv::normalize(samples, samples, 0, 1, cv::NORM_MINMAX);
+    cv::resize(samples, samples, cv::Size(samples.size().width * config.default_sample_rate / file.getSampleRate(), samples.size().height), cv::INTER_LINEAR);
     display_spectrogram(samples);
     return samples;
 }

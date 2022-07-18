@@ -40,7 +40,6 @@ Fingerprint Fingerprint::fingerprint(cv::Mat input, const Config& config, size_t
         return f;
     }
 
-    // TODO: assumes same sampling rate
     Kdtree::KdNodeVector nodes;
     for (size_t i = 0; i < points.total(); ++i) {
         const auto& point = points.at<cv::Point>(i);
