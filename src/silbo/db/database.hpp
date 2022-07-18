@@ -33,7 +33,7 @@ private:
         ar & paths_;
     }
 
-    Config config_;
+    const Config config_;
     std::vector<fingerprint::Hash> hashes_;
     std::unique_ptr<Kdtree::KdTree> tree_;
     bool initialized_ = false;

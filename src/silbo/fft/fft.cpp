@@ -47,6 +47,7 @@ cv::Mat FFT::fft(const std::string& path, const Config& config) {
     }
 
     samples = samples(cv::Rect{config.min_freq, 0, config.max_freq - config.min_freq, samples.size().height}).t();
+    cv::normalize(samples, samples, 0, 1, cv::NORM_MINMAX);
     display_spectrogram(samples);
     return samples;
 }

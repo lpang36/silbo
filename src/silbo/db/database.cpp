@@ -45,7 +45,7 @@ std::vector<Match> Database::lookup(const fingerprint::Fingerprint& f) {
         });
 
         score /= hashes.size();
-        if (score > config_.threshold) {
+        if (score > config_.score_threshold) {
             output.emplace_back(Match{id, score, paths_.at(id - 1)});
         }
     }

@@ -30,13 +30,13 @@ Fingerprint Fingerprint::fingerprint(cv::Mat input, const Config& config, size_t
     mask.at<float>(config.mask_width / 2, config.mask_height / 2) = 0;
     cv::Mat constellation;
     cv::dilate(input, constellation, mask);
-    constellation = input >= constellation;
+    constellation = (input >= constellation) & (input > config.spectrogram_threshold);
     display_spectrogram(constellation);
     cv::Mat points;
     cv::findNonZero(constellation, points);
 
     Fingerprint f;
-    if (points.size().width == 0) {
+    if (points.size().height == 0) {
         return f;
     }
 

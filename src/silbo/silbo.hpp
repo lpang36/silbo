@@ -22,8 +22,8 @@ public:
 private:
     fingerprint::Fingerprint process_file(const std::string& path) const;
 
-    Config config_;
-    std::unique_ptr<db::Database> db_;
+    const Config config_;
+    const std::unique_ptr<db::Database> db_;
 };
 
 }
