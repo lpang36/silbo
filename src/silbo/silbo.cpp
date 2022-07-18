@@ -20,7 +20,7 @@ void Silbo::add(const std::string& path) {
         glob_t globbuf;
         if (glob(path.c_str(), 0, NULL, &globbuf) == 0) {
             for (size_t i = 0; i < globbuf.gl_pathc; ++i) {
-                db_->add(process_file(globbuf.gl_pathv[i]));
+                db_->add(path, process_file(globbuf.gl_pathv[i]));
             }
             globfree(&globbuf);
         }
@@ -36,18 +36,11 @@ void Silbo::save() const {
 }
 
 std::vector<db::Match> Silbo::lookup(const std::string& path) const {
-    auto results = db_->lookup(process_file(path));
-    std::for_each(results.begin(), results.end(), [&](auto& match) {
-        match.name = paths.at(match.id - 1);
-    });
-    return results;
+    return db_->lookup(process_file(path));
 }
 
 fingerprint::Fingerprint Silbo::process_file(const std::string& path) const {
-    // assumes no duplicate paths
-    ids_[path] = ++next_id_;
-    paths.emplace_back(path);
-    return fingerprint::Fingerprint::fingerprint(fft::FFT::fft(path, config_), config_, next_id_);
+    return fingerprint::Fingerprint::fingerprint(fft::FFT::fft(path, config_), config_, db_->get_next_id());
 }
 
 }

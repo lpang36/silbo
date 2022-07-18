@@ -29,6 +29,7 @@ cv::Mat FFT::fft(const std::string& path, const Config& config) {
         window.at<float>(0, i) = 0.5 * (1 - std::cos(2 * M_PI * i / (cols)));
     }*/
 
+    // TODO: overlap
   	// http://docs.opencv.org/doc/tutorials/core/discrete_fourier_transform/discrete_fourier_transform.html
     for (size_t i = 0; i < rows; ++i) {
         // could be more efficient without repeated allocation

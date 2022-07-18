@@ -15,10 +15,10 @@ std::vector<Hash> Fingerprint::hashes() const {
     return hashes_;
 }
 
-void Fingerprint::add(const cv::Point& p1, const Kdtree::KdNode& p2, size_t id) {
+void Fingerprint::add(const cv::Point& p1, const Kdtree::KdNode& p2, size_t id, size_t offset) {
     hashes_.emplace_back(Hash{
         p1.x,
-        p1.y / p2.point[1],
+        (p1.y + offset) / (p2.point[1] + offset),
         p2.point[0] - p1.x,
         id,
     });
@@ -40,7 +40,7 @@ Fingerprint Fingerprint::fingerprint(cv::Mat input, const Config& config, size_t
         return f;
     }
 
-    // assumes same sampling rate - must fix
+    // TODO: assumes same sampling rate
     Kdtree::KdNodeVector nodes;
     for (size_t i = 0; i < points.total(); ++i) {
         const auto& point = points.at<cv::Point>(i);
@@ -55,10 +55,9 @@ Fingerprint Fingerprint::fingerprint(cv::Mat input, const Config& config, size_t
         Kdtree::KdNodeVector result;
         tree.range_nearest_neighbors(anchor, config.window_size / 2, &result);
         for (const auto& p : result) {
-            f.add(point, p, id);
+            f.add(point, p, id, config.min_freq);
         }
     }
-    std::cout << f.hashes().size() << std::endl;
     return f;
 }
 

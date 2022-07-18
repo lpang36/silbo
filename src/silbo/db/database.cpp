@@ -7,7 +7,10 @@
 namespace silbo {
 namespace db {
 
-void Database::add(const fingerprint::Fingerprint& f) {
+void Database::add(const std::string& path, const fingerprint::Fingerprint& f) {
+    // assumes no duplicate paths
+    paths_.emplace_back(path);
+    
     auto h = f.hashes();
     hashes_.insert(hashes_.end(), h.begin(), h.end());
 }
@@ -41,14 +44,9 @@ std::vector<Match> Database::lookup(const fingerprint::Fingerprint& f) {
             }
         });
 
-        for (const auto& [bucket, count] : histogram) {
-            std::cout << bucket << " " << count << std::endl;
-        }
-        std::cout << std::endl;
-
         score /= hashes.size();
         if (score > config_.threshold) {
-            output.emplace_back(Match{id, score, ""});
+            output.emplace_back(Match{id, score, paths_.at(id - 1)});
         }
     }
 
@@ -58,8 +56,12 @@ std::vector<Match> Database::lookup(const fingerprint::Fingerprint& f) {
     return output;
 }
 
+size_t Database::get_next_id() const {
+    return paths_.size() + 1;
+}
+
 void Database::initialize() {
-    if (!initialized) {
+    if (!initialized_) {
         Kdtree::KdNodeVector nodes;
         nodes.reserve(hashes_.size());
         for (const auto& hash : hashes_) {
@@ -67,7 +69,7 @@ void Database::initialize() {
         }
 
         tree_ = std::make_unique<Kdtree::KdTree>(&nodes);
-        initialized = true;
+        initialized_ = true;
     }
 }
 

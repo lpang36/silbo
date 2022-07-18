@@ -17,8 +17,9 @@ class Database {
 public:
     explicit Database(const Config& config) : config_(config) {};
 
-    void add(const fingerprint::Fingerprint& f);
+    void add(const std::string& name, const fingerprint::Fingerprint& f);
     std::vector<Match> lookup(const fingerprint::Fingerprint& f);
+    size_t get_next_id() const;
 
 private:
     friend class boost::serialization::access;
@@ -29,12 +30,14 @@ private:
     template<class Archive>
     void serialize(Archive& ar, const unsigned int version) {
         ar & hashes_;
+        ar & paths_;
     }
 
     Config config_;
     std::vector<fingerprint::Hash> hashes_;
     std::unique_ptr<Kdtree::KdTree> tree_;
-    bool initialized = false;
+    bool initialized_ = false;
+    std::vector<std::string> paths_;
 };
 
 }

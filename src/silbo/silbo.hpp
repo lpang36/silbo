@@ -24,9 +24,6 @@ private:
 
     Config config_;
     std::unique_ptr<db::Database> db_;
-    mutable std::unordered_map<std::string, size_t> ids_;
-    mutable std::vector<std::string> paths;
-    mutable size_t next_id_ = 0;
 };
 
 }

@@ -22,7 +22,7 @@ namespace fingerprint {
 class Fingerprint {
 public:
     std::vector<Hash> hashes() const;
-    void add(const cv::Point& p1, const Kdtree::KdNode& p2, size_t id);
+    void add(const cv::Point& p1, const Kdtree::KdNode& p2, size_t id, size_t offset);
     
     static Fingerprint fingerprint(cv::Mat input, const Config& config, size_t id);
 
